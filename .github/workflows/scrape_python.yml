@@ -2,6 +2,7 @@ name: Python pipeline sanity
 
 on:
   workflow_dispatch: {}
+
 permissions:
   contents: write
 
@@ -20,11 +21,5 @@ jobs:
       - name: Write data with Python
         run: |
           mkdir -p data
-          python - <<'PY'
-import pandas as pd, pathlib, datetime as dt
-pathlib.Path("data").mkdir(parents=True, exist_ok=True)
-df = pd.DataFrame([{"ok": True, "ts": dt.datetime.utcnow().isoformat()}])
-df.to_csv("data/hello.csv", index=False, encoding="utf-8")
-print("wrote data/hello.csv")
-PY
+          python -c "import pandas as pd, pathlib, datetime as dt; pathlib.Path('data').mkdir(parents=True, exist_ok=True); df=pd.DataFrame([{'ok':True,'ts':dt.datetime.utcnow().isoformat()}]); df.to_csv('data/hello.csv', index=False, encoding='utf-8'); print('wrote data/hello.csv')"
           ls -alh data

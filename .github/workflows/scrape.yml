@@ -1,0 +1,54 @@
+name: Weekly scrape & update LoTTang
+
+on:
+  schedule:
+    - cron: "0 6 * * 0"   # 매주 일요일 15:00 KST
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  scrape-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run scraper & update (requests)
+        env:
+          TZ: Asia/Seoul
+        run: |
+          python scripts/scrape_and_update_requests.py \
+            --repo-root . \
+            --base-draw 1184 \
+            --base-date 2025-08-09
+
+      - name: Debug: list data dir
+        run: |
+          echo "[data contents]"
+          ls -alh data || true
+          for f in dhlottery_stores.csv wins.csv wins_unmatched.csv scores_a3_summary.csv; do
+            echo "---- ${f} ----"; head -n 5 "data/${f}" || true; done
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(data): weekly scrape & A3 recompute [skip ci]"
+          title: "chore(data): weekly scrape & A3 recompute"
+          body: |
+            Automated weekly scraping & A3 recompute.
+            - Updates under /data
+          branch: automation/data-update
+          delete-branch: true

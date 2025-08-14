@@ -13,17 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Write data with Python (no pandas)
+      - name: Write data (pure shell, no Python)
         run: |
           mkdir -p data
-          python - <<'PY'
-import csv, os, datetime as dt
-os.makedirs("data", exist_ok=True)
-with open("data/hello.csv", "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
-    w.writerow(["ok","ts"])
-    w.writerow([True, dt.datetime.utcnow().isoformat()])
-print("wrote data/hello.csv")
-PY
+          printf "ok,ts\ntrue,%s\n" "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" > data/hello.csv
           ls -alh data
           head -n 5 data/hello.csv

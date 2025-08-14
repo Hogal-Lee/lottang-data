@@ -13,13 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Write data with Python
+      - name: Write data with Python (no pandas)
         run: |
           mkdir -p data
-          python -c "import pandas as pd, pathlib, datetime as dt; pathlib.Path('data').mkdir(parents=True, exist_ok=True); df=pd.DataFrame([{'ok':True,'ts':dt.datetime.utcnow().isoformat()}]); df.to_csv('data/hello.csv', index=False, encoding='utf-8'); print('wrote data/hello.csv')"
+          python - <<'PY'
+import csv, os, datetime as dt
+os.makedirs("data", exist_ok=True)
+with open("data/hello.csv", "w", newline="", encoding="utf-8") as f:
+    w = csv.writer(f)
+    w.writerow(["ok","ts"])
+    w.writerow([True, dt.datetime.utcnow().isoformat()])
+print("wrote data/hello.csv")
+PY
           ls -alh data
+          head -n 5 data/hello.csv

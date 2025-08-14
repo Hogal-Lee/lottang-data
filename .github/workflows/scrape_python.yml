@@ -1,0 +1,30 @@
+name: Python pipeline sanity
+
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Write data with Python
+        run: |
+          mkdir -p data
+          python - <<'PY'
+import pandas as pd, pathlib, datetime as dt
+pathlib.Path("data").mkdir(parents=True, exist_ok=True)
+df = pd.DataFrame([{"ok": True, "ts": dt.datetime.utcnow().isoformat()}])
+df.to_csv("data/hello.csv", index=False, encoding="utf-8")
+print("wrote data/hello.csv")
+PY
+          ls -alh data

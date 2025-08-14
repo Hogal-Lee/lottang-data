@@ -40,3 +40,7 @@ jobs:
           body: "Automated weekly scraping & A3 recompute. Updates under /data"
           branch: automation/data-update
           delete-branch: true
+      - name: Geocode with Kakao
+        env:
+          KAKAO_API_KEY: ${{ secrets.KAKAO_API_KEY }}
+        run: python scripts/geocode_kakao.py
